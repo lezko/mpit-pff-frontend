@@ -25,7 +25,9 @@ createRoot(document.getElementById("root")).render(
             defaultHoverColor: "unset",
             defaultBorderWidth: 2,
           },
-          Table: {},
+          Table: {
+            rowHoverBg: '#575757'
+          },
         },
       }}
     >

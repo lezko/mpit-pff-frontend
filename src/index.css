@@ -1,24 +1,39 @@
-:root {
-  font-family: Roboto, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/*:root {*/
+/*  font-family: Roboto, sans-serif;*/
+/*  line-height: 1.5;*/
+/*  font-weight: 400;*/
 
-  /*background-color: rgba(255, 255, 255, 0.87);*/
-  /*color: #242424;*/
+/*  !*background-color: rgba(255, 255, 255, 0.87);*!*/
+/*  !*color: #242424;*!*/
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/*  font-synthesis: none;*/
+/*  text-rendering: optimizeLegibility;*/
+/*  -webkit-font-smoothing: antialiased;*/
+/*  -moz-osx-font-smoothing: grayscale;*/
+/*}*/
+
+
+
+/*h3 {*/
+/*  margin: 0;*/
+
+/*}*/
+
+/*h5 {*/
+/*  margin: 0;*/
+/*}*/
+
+::-webkit-scrollbar {
+  background-color: transparent;
 }
 
-
-
-h3 {
-  margin: 0;
-
+::-webkit-scrollbar-track {
+  background-color: transparent;
 }
 
-h5 {
-  margin: 0;
+::-webkit-scrollbar-thumb {
+  background-color: #d6dee1;
+  border-radius: 20px;
+  border: 6px solid transparent;
+  background-clip: content-box;
 }

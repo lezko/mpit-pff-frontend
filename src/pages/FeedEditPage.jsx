@@ -117,7 +117,7 @@ export const FeedEditPage = () => {
     const result = await trigger({ feedId, page });
     setData(result.data);
     const errorsResult = await triggerErrors({ feedId });
-    console.log(errorsResult.data)
+    console.log(errorsResult.data);
     setErrors(errorsResult.data);
     const pagesResult = await triggerPages({ feedId });
     setTotalPages(pagesResult.data.count);
@@ -132,55 +132,72 @@ export const FeedEditPage = () => {
   }, [page]);
 
   useEffect(() => {
-    if (!data || !data.length) {
-      return;
-    }
-
-    const columnsNames = data[0].data;
-    const columns = columnsNames.map((item, index) => ({
-      title: item,
-      dataIndex: item,
-      key: item,
-      render(text, record) {
-        if (
-          index === selectedError?.columnIndex &&
-          record.key === selectedError?.rowIndex
-        ) {
-          console.log("sldkfjs;dlfkj");
-          setShouldUpdate(true);
-        }
-        return {
-          props: {
-            style: {
-              backgroundColor:
-                index === selectedError?.columnIndex &&
-                record.key === selectedError?.rowIndex
-                  ? "#474747"
-                  : "unset",
-            },
-          },
-          children:
-            index === selectedError?.columnIndex &&
-            record.key === selectedError?.rowIndex ? (
-              <>
-                <Input style={{ width: 120 }} ref={ref} defaultValue={text} />
-              </>
-            ) : (
-              text
-            ),
-        };
-      },
-    }));
-    const dataSource = data.slice(1).map(({ data, index }) => {
-      const obj = { key: index };
-      for (let i = 0; i < columnsNames.length; i++) {
-        obj[columnsNames[i]] = data[i];
-      }
-      return obj;
-    });
+    // if (!data || !data.length) {
+    //   return;
+    // }
+    //
+    // const columnsNames = data[0].data;
+    // const columns = columnsNames.map((item, index) => ({
+    //   title: item,
+    //   dataIndex: item,
+    //   key: item,
+    //   render(text, record) {
+    //     if (
+    //       index === selectedError?.columnIndex &&
+    //       record.key === selectedError?.rowIndex
+    //     ) {
+    //       console.log("sldkfjs;dlfkj");
+    //       setShouldUpdate(true);
+    //     }
+    //     return {
+    //       props: {
+    //         style: {
+    //           backgroundColor:
+    //             index === selectedError?.columnIndex &&
+    //             record.key === selectedError?.rowIndex
+    //               ? "#474747"
+    //               : "unset",
+    //         },
+    //       },
+    //       children:
+    //         index === selectedError?.columnIndex &&
+    //         record.key === selectedError?.rowIndex ? (
+    //           <>
+    //             <Input style={{ width: 120 }} ref={ref} defaultValue={text} />
+    //           </>
+    //         ) : (
+    //           text
+    //         ),
+    //     };
+    //   },
+    // }));
+    // const dataSource = data.slice(1).map(({ data, index }) => {
+    //   const obj = { key: index };
+    //   for (let i = 0; i < columnsNames.length; i++) {
+    //     obj[columnsNames[i]] = data[i];
+    //   }
+    //   return obj;
+    // });
+    // setTableData({
+    //   columns,
+    //   dataSource,
+    // });
     setTableData({
-      columns,
-      dataSource,
+      dataSource: Array(50)
+        .fill(null)
+        .map((_, i) => ({
+          key: i,
+          name: "Mike",
+          age: i,
+          address: "10 Downing Street",
+        })),
+      columns: Array(50)
+        .fill(null)
+        .map((_, i) => ({
+          title: i,
+          dataIndex: "name",
+          key: i,
+        })),
     });
   }, [data, selectedError]);
 
@@ -201,9 +218,6 @@ export const FeedEditPage = () => {
         {tableData && (
           <>
             <Table
-              // rowClassName={(record, index, indent) => {
-              //     console.log(record, index, inde)
-              // }}
               pagination={false}
               style={{
                 width: "80%",

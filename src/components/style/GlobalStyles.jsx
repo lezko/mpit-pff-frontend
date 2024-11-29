@@ -13,4 +13,29 @@ export const GlobalStyles = createGlobalStyle`
     background-color: #272727;
     color: white;
   }
+
+  .ant-table-row:nth-child(odd) {
+    background-color: #444343;
+
+  }
+
+  ::-webkit-scrollbar-corner {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #8d8d8d;
+    border-radius: 20px;
+    border: 6px solid transparent;
+    background-clip: content-box;
+  }
+
 `;
