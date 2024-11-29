@@ -9,7 +9,8 @@ export const GlobalStyles = createGlobalStyle`
 
   body {
     font-family: Roboto, sans-serif;
+    font-weight: 600;
     background-color: #272727;
-    color: #c5c5c5;
+    color: white;
   }
 `;

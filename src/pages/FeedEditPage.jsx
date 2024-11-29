@@ -117,6 +117,7 @@ export const FeedEditPage = () => {
     const result = await trigger({ feedId, page });
     setData(result.data);
     const errorsResult = await triggerErrors({ feedId });
+    console.log(errorsResult.data)
     setErrors(errorsResult.data);
     const pagesResult = await triggerPages({ feedId });
     setTotalPages(pagesResult.data.count);
@@ -223,9 +224,11 @@ export const FeedEditPage = () => {
                     onCancel={() => setSelectedError(undefined)}
                     key={error.id}
                     id={error.id}
-                    name={error.error}
+                    title={error.title}
+                    description={error.description}
                     row={error.rowIndex}
                     col={error.columnIndex}
+                    errorType={error.errorType}
                   />
                 ))}
             </Flex>

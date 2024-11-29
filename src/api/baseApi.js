@@ -7,7 +7,7 @@ const EGOR = "192.168.174.110";
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://${EGOR}:8080`,
+    baseUrl: `http://localhost:8080`,
     mode: "cors",
   }),
   endpoints: (builder) => ({
