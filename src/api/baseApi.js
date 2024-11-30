@@ -11,7 +11,7 @@ const isDev = process.env.NODE_ENV === "development";
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://${HOST}:8080`,
+    baseUrl: `http://${"192.168.223.242"}:8080`,
     mode: "cors",
   }),
   endpoints: (builder) => ({
@@ -68,6 +68,9 @@ export const baseApi = createApi({
         method: "POST",
       }),
     }),
+    getLogs: builder.query({
+      query: () => "/file/logs",
+    }),
   }),
 });
 
@@ -83,4 +86,5 @@ export const {
   useSolveErrorMutation,
   useSupressErrorMutation,
   useConfirmChangesMutation,
+  useGetLogsQuery,
 } = baseApi;

@@ -4,6 +4,7 @@ import { Container } from "@/components/style/Container.js";
 import { useGetFeedsQuery } from "@/api/baseApi.js";
 import { useState } from "react";
 import { AddFeedModal } from "@/components/modals/AddFeedModal.jsx";
+import { Loader } from "@/components/style/Loader.jsx";
 
 const items = [
   {
@@ -30,22 +31,29 @@ const items = [
 ];
 
 export const FeedsListPage = () => {
-  const { data } = useGetFeedsQuery();
+  const { data, isLoading } = useGetFeedsQuery();
 
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <>
+      {isLoading && (
+        <div style={{ marginTop: 60 }}>
+          <Loader />
+        </div>
+      )}
       <AddFeedModal open={modalOpen} setOpen={setModalOpen} />
       <Container>
-        {!!data?.length ? (
+        {!!data?.length && (
           <Button
             onClick={() => setModalOpen(true)}
             style={{ marginBottom: 40 }}
           >
             Добавить
           </Button>
-        ) : (
+        )}
+
+        {data && !data.length && (
           <Flex style={{ marginTop: 60 }} gap={10} vertical align={"center"}>
             <div>У вас нет загруженных фидов</div>
             <Button
@@ -56,6 +64,7 @@ export const FeedsListPage = () => {
             </Button>
           </Flex>
         )}
+
         <Flex gap={10} vertical>
           {data &&
             data.map((item, idx) => (

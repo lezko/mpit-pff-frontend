@@ -12,6 +12,7 @@ import {
   useSolveErrorMutation,
 } from "@/api/baseApi.js";
 import { Container } from "@/components/style/Container.js";
+import { Loader } from "@/components/style/Loader.jsx";
 
 const { TextArea } = Input;
 
@@ -110,8 +111,9 @@ export const FeedEditPage = () => {
   const [errorsPage, setErrorsPage] = useState(1);
 
   const { data: allFeedsData } = useGetFeedsQuery();
-  const [trigger] = useLazyGetFeedDataQuery();
-  const [triggerErrors] = useLazyGetFeedErrorsQuery();
+  const [trigger, { isLoading: isFeedLoading }] = useLazyGetFeedDataQuery();
+  const [triggerErrors, { isLoading: isErrorsLoading }] =
+    useLazyGetFeedErrorsQuery();
   const [triggerPages] = useLazyGetFeedPagesCountQuery();
   const [triggerErrorsPages] = useLazyGetFeedErrorsPagesCountQuery();
 
@@ -307,100 +309,104 @@ export const FeedEditPage = () => {
         Подтвердить изменения
       </Button>
       <Flex gap={10} style={{ minHeight: 0 }}>
-        {tableData && (
-          <>
-            <div
-              ref={tableRef}
-              style={{
-                width: "75%",
-                // overflowX: "auto",
-                // overflowY: "auto",
-                minHeight: 0,
-                maxHeight: "100%",
-              }}
-            >
-              <Table
-                bordered
-                scroll={{
-                  x: "max-content",
-                  y: rootHeight - 106 - 2 * 56.48 + 15,
-                }}
-                pagination={false}
-                columns={tableData.columns}
-                dataSource={tableData.dataSource}
-              ></Table>
-            </div>
-
-            <Flex
-              style={{ width: "25%", minHeight: 0, overflowY: "auto" }}
-              vertical
-              gap={20}
-            >
-              <Flex
-                style={{ minHeight: 0, overflowY: "auto" }}
-                vertical
-                gap={5}
-              >
-                {errors &&
-                  errors.length &&
-                  errors
-                    .slice()
-                    .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
-                    .map((error) => (
-                      <Error
-                        suppressed={error.suppressed}
-                        loading={isSolveLoading}
-                        active={error.id === selectedError?.id}
-                        solved={error.useSolve}
-                        onSave={handleSave}
-                        onSuppress={handleSuppress}
-                        onClick={handleErrorClick}
-                        onCancel={() => {
-                          setSelectedError(undefined);
-                          setSolution("");
-                        }}
-                        aiSolution={
-                          error.errorType === "AI"
-                            ? error.errorSolve.value
-                            : undefined
-                        }
-                        onFillAi={() => setSolution(error.errorSolve.value)}
-                        key={error.id}
-                        id={error.id}
-                        title={error.title}
-                        description={error.description}
-                        row={error.rowIndex}
-                        col={error.columnIndex}
-                        errorType={error.errorType}
-                      />
-                    ))}
-              </Flex>
-              <Flex
-                align="center"
-                gap={15}
-                style={{ margin: "0 auto", padding: 10 }}
-              >
-                <Button onClick={() => handleErrorsPageChange(1)}>
-                  {BR_OPEN}
-                  {BR_OPEN}
-                </Button>
-                <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
-                  {BR_OPEN}
-                </Button>
-                <div>{errorsPage}</div>
-                <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
-                  {BR_CLOSE}
-                </Button>
-                <Button
-                  onClick={() => handleErrorsPageChange(totalErrorsPages)}
-                >
-                  {BR_CLOSE}
-                  {BR_CLOSE}
-                </Button>
-              </Flex>
+        <div
+          ref={tableRef}
+          style={{
+            width: "75%",
+            // overflowX: "auto",
+            // overflowY: "auto",
+            minHeight: 0,
+            maxHeight: "100%",
+          }}
+        >
+          {isFeedLoading && (
+            <Flex justify="center">
+              <Loader />
             </Flex>
-          </>
-        )}
+          )}
+
+          {!isFeedLoading && tableData && (
+            <Table
+              bordered
+              scroll={{
+                x: "max-content",
+                y: rootHeight - 106 - 2 * 56.48 - 20,
+              }}
+              pagination={false}
+              columns={tableData.columns}
+              dataSource={tableData.dataSource}
+            ></Table>
+          )}
+        </div>
+
+        <Flex
+          style={{ width: "25%", minHeight: 0, overflowY: "auto" }}
+          vertical
+          gap={20}
+        >
+          <Flex style={{ minHeight: 0, overflowY: "auto" }} vertical gap={5}>
+            {isErrorsLoading && <Loader />}
+            {!isErrorsLoading &&
+              errors &&
+              !!errors.length &&
+              errors
+                .slice()
+                .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
+                .map((error) => (
+                  <Error
+                    suppressed={error.suppressed}
+                    loading={isSolveLoading}
+                    active={error.id === selectedError?.id}
+                    solved={error.useSolve}
+                    onSave={handleSave}
+                    onSuppress={handleSuppress}
+                    onClick={handleErrorClick}
+                    onCancel={() => {
+                      setSelectedError(undefined);
+                      setSolution("");
+                    }}
+                    aiSolution={
+                      error.errorType === "AI"
+                        ? error.errorSolve.value
+                        : undefined
+                    }
+                    onFillAi={() => setSolution(error.errorSolve.value)}
+                    key={error.id}
+                    id={error.id}
+                    title={error.title}
+                    description={error.description}
+                    row={error.rowIndex}
+                    col={error.columnIndex}
+                    errorType={error.errorType}
+                  />
+                ))}
+          </Flex>
+
+          <Flex
+            align="center"
+            gap={15}
+            style={{ margin: "0 auto", padding: 10 }}
+          >
+            <Button onClick={() => handleErrorsPageChange(1)}>
+              {BR_OPEN}
+              {BR_OPEN}
+            </Button>
+            <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
+              {BR_OPEN}
+            </Button>
+            <div>
+              {errorsPage}
+              <span style={{ color: "#949494" }}> / {totalErrorsPages}</span>
+            </div>
+            <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
+              {BR_CLOSE}
+            </Button>
+            <Button onClick={() => handleErrorsPageChange(totalErrorsPages)}>
+              {BR_CLOSE}
+              {BR_CLOSE}
+            </Button>
+          </Flex>
+        </Flex>
       </Flex>
       {/*<Flex align="center" justify="center">*/}
       {/*  {Array(totalPages)*/}
