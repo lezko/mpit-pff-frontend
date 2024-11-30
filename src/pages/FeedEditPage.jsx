@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { Flex, Input, Table } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
 import {
   useLazyGetFeedDataQuery,
@@ -96,17 +96,6 @@ export const FeedEditPage = () => {
   const ref = useRef(null);
   const [shouldUpdate, setShouldUpdate] = useState(false);
 
-  useEffect(() => {
-    // console.log(ref.current)
-    if (shouldUpdate) {
-      if (ref.current?.scrollIntoView) {
-        console.log(ref.current);
-        ref.current.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }
-      setShouldUpdate(false);
-    }
-  }, [shouldUpdate]);
-
   const [totalPages, setTotalPages] = useState(0);
   const [page, setPage] = useState(1);
 
@@ -123,19 +112,24 @@ export const FeedEditPage = () => {
     setTotalPages(pagesResult.data.count);
   };
 
-  const [tableData, setTableData] = useState();
-
   const [data, setData] = useState();
   const [errors, setErrors] = useState([]);
   useEffect(() => {
     fetchData(page);
   }, [page]);
 
+  // todo handle request
+  useEffect(() => {
+    if (selectedError && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [selectedError]);
+
   const [solution, setSolution] = useState("");
 
-  useEffect(() => {
+  const tableData = useMemo(() => {
     if (!data || !data.length) {
-      return;
+      return { dataSource: [], columns: [] };
     }
 
     const columnsNames = data[0].data;
@@ -162,14 +156,14 @@ export const FeedEditPage = () => {
           children:
             index === selectedError?.columnIndex &&
             record.key === selectedError?.rowIndex ? (
-              <>
+              <div ref={ref}>
                 <TextArea
                   style={{ width: 120 }}
-                  // ref={ref}
+                  ref={ref}
                   value={solution}
                   onChange={(e) => setSolution(e.target.value)}
                 />
-              </>
+              </div>
             ) : (
               text
             ),
@@ -183,10 +177,13 @@ export const FeedEditPage = () => {
       }
       return obj;
     });
-    setTableData({
+    return {
       columns,
       dataSource,
-    });
+    };
+  }, [data, selectedError, solution]);
+
+  useEffect(() => {
     // setTableData({
     //   dataSource: Array(50)
     //     .fill(null)
@@ -228,20 +225,26 @@ export const FeedEditPage = () => {
       <Flex gap={10} style={{ minHeight: 0 }}>
         {tableData && (
           <>
-            <Table
-              pagination={false}
+            <div
               style={{
                 width: "80%",
                 overflowX: "auto",
                 overflowY: "auto",
                 minHeight: 0,
-                // maxHeight: "80vh",
               }}
-              columns={tableData.columns}
-              dataSource={tableData.dataSource}
-            ></Table>
+            >
+              <Table
+                pagination={false}
+                columns={tableData.columns}
+                dataSource={tableData.dataSource}
+              ></Table>
+            </div>
 
-            <Flex style={{ width: "20%", minHeight: 0, overflowY: 'auto' }} vertical gap={5}>
+            <Flex
+              style={{ width: "20%", minHeight: 0, overflowY: "auto" }}
+              vertical
+              gap={5}
+            >
               {errors &&
                 errors.length &&
                 errors.map((error) => (
