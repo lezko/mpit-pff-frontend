@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { Button, Flex } from "antd";
 import { WarningOutlined } from "@ant-design/icons";
 import { useState } from "react";
+import { useSupressErrorMutation } from "@/api/baseApi.js";
 
 const L = styled("span")`
   text-decoration: none;
@@ -59,7 +60,9 @@ const Wrapper = styled("div")`
       ? "linear-gradient(to right, transparent, rgba(255, 0, 0, 1))"
       : $errorType === "LOGICAL" || $errorType === "AI"
         ? "linear-gradient(to right, transparent, #ffb700)"
-        : "linear-gradient(to right, transparent, #2c2c2c)"};
+        : $errorType === "SOLVED"
+          ? "linear-gradient(to right, transparent, green)"
+          : "linear-gradient(to right, transparent, #2c2c2c)"};
   padding: 10px;
   border-radius: 5px;
   background-size: 2% 100%;
@@ -104,10 +107,12 @@ export const Error = ({
   id,
   title,
   loading,
+  suppressed,
   description,
   row,
   col,
   active,
+  solved,
   onSave,
   onClick,
   onFillAi,
@@ -117,10 +122,29 @@ export const Error = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const expandable = title.length > 60;
+
+  const [supressError, { isLoading }] = useSupressErrorMutation();
+
+  const handleSuppress = async () => {
+    await supressError({ errorId: id });
+    onCancel();
+  };
+
   return (
-    <Wrapper $errorType={errorType}>
+    <Wrapper
+      style={{ pointerEvents: suppressed || solved ? "none" : "all" }}
+      $errorType={solved ? "SOLVED" : errorType}
+    >
       <ErrorHeader>
-        <h2 style={{ margin: 0, color: "#fff" }}>{title}</h2>
+        <h2
+          style={{
+            textDecoration: suppressed ? "line-through" : "none",
+            margin: 0,
+            color: "#fff",
+          }}
+        >
+          {title}
+        </h2>
         <L onClick={() => onClick(id)}>
           строка {row}, столбец {col}
         </L>
@@ -152,15 +176,27 @@ export const Error = ({
             {description || "Нет данных для отображения."}
           </ErrorBody>
           <Flex justify="space-between">
-            <Flex gap={5}>
+            <Flex vertical gap={5}>
               <Button loading={active && loading} onClick={onSave}>
                 Сохранить
               </Button>
               <Button onClick={onCancel}>Отменить</Button>
             </Flex>
-            {aiSolution && (
-              <Button onClick={onFillAi}>Предложить решение</Button>
-            )}
+
+            <Flex gap={5} vertical>
+              {aiSolution && (
+                <Button onClick={onFillAi}>Предложить решение</Button>
+              )}
+              <Button
+                onClick={handleSuppress}
+                loading={isLoading}
+                style={{
+                  borderColor: "red",
+                }}
+              >
+                Игнорировать
+              </Button>
+            </Flex>
           </Flex>
         </Flex>
       )}

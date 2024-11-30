@@ -55,6 +55,13 @@ export const baseApi = createApi({
       }),
       invalidatesTags: () => ["ERRORS"],
     }),
+    supressError: builder.mutation({
+      query: ({ errorId }) => ({
+        url: `/error/suppress/${errorId}`,
+        method: "POST",
+      }),
+      invalidatesTags: () => ["ERRORS"],
+    }),
   }),
 });
 
@@ -68,4 +75,5 @@ export const {
   useAddFeedMutation,
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,
+  useSupressErrorMutation,
 } = baseApi;

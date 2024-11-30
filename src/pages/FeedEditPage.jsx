@@ -242,11 +242,12 @@ export const FeedEditPage = () => {
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
+    setSelectedError(error);
+
     const row = data.find((r) => r.index === error.rowIndex);
     if (!row) {
       const newPage = Math.ceil(error.rowIndex / 25);
       setPage(newPage);
-      setSelectedError(error);
       fetchData(newPage, error);
     } else {
       setSolution(row.data[error.columnIndex]);
@@ -257,6 +258,7 @@ export const FeedEditPage = () => {
   const handleSave = async () => {
     await solveError({ errorId: selectedError.id, value: solution });
     fetchData(page);
+    fetchErrors(errorsPage);
     setSelectedError(undefined);
   };
 
@@ -316,8 +318,10 @@ export const FeedEditPage = () => {
                     .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
                     .map((error) => (
                       <Error
+                        suppressed={error.suppressed}
                         loading={isSolveLoading}
                         active={error.id === selectedError?.id}
+                        solved={error.useSolve}
                         onSave={handleSave}
                         onClick={handleErrorClick}
                         onCancel={() => {
