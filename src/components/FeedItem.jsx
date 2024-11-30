@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { Button, Flex, Grid } from "antd";
 import { useNavigate } from "react-router-dom";
+import { Loader } from "@/components/style/Loader.jsx";
 
 const Wrapper = styled(Flex)`
   text-align: left;
@@ -25,10 +26,10 @@ export const FeedItem = ({ id, name, count, status, errors }) => {
       <Flex align="center" justify={"space-between"}>
         <h3>{name}</h3>
       </Flex>
-      <div>Количество товаров: {count}</div>
+      <div>Количество позиций: {status === "PROCESSING" ? "-" : count}</div>
       {status && <Status>{status}</Status>}
       <Flex gap={10}>
-        {status !== "COMPLETED" && (
+        {status === "PROCESSED" && (
           <Button
             color="#3493FF"
             style={{
@@ -40,6 +41,7 @@ export const FeedItem = ({ id, name, count, status, errors }) => {
             Редактировать
           </Button>
         )}
+        {status === "PROCESSING" && <Loader />}
       </Flex>
     </Wrapper>
   );

@@ -31,7 +31,9 @@ const items = [
 ];
 
 export const FeedsListPage = () => {
-  const { data, isLoading } = useGetFeedsQuery();
+  const { data, isLoading } = useGetFeedsQuery(undefined, {
+    pollingInterval: 5000,
+  });
 
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -39,7 +41,9 @@ export const FeedsListPage = () => {
     <>
       {isLoading && (
         <div style={{ marginTop: 60 }}>
-          <Loader />
+          <Flex justify="center">
+            <Loader />
+          </Flex>
         </div>
       )}
       <AddFeedModal open={modalOpen} setOpen={setModalOpen} />
@@ -49,7 +53,7 @@ export const FeedsListPage = () => {
             onClick={() => setModalOpen(true)}
             style={{ marginBottom: 40 }}
           >
-            Добавить
+            Добавить фид
           </Button>
         )}
 

@@ -15,8 +15,15 @@ createRoot(document.getElementById("root")).render(
         token: {
           colorBgBase: "#272727",
           colorTextBase: "white",
+          colorBorder: "#b7b7b7",
+
         },
         components: {
+          Input: {
+            activeBorderColor: "#c7c7c7",
+            hoverBorderColor: "#fff",
+            borderColor: "#fff",
+          },
           Button: {
             defaultColor: "#fff",
             defaultBorderColor: "#fff",

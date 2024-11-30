@@ -13,6 +13,8 @@ import {
 } from "@/api/baseApi.js";
 import { Container } from "@/components/style/Container.js";
 import { Loader } from "@/components/style/Loader.jsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 const { TextArea } = Input;
 
@@ -126,7 +128,7 @@ export const FeedEditPage = () => {
   }, [allFeedsData]);
 
   const fetchErrors = async (page) => {
-    const errorsResult = await triggerErrors({ feedId, page });
+    const errorsResult = await triggerErrors({ feedId, page: page - 1 });
     setErrors(errorsResult.data.content);
     setTotalErrorsPages(errorsResult.data.totalPages - 1);
   };
@@ -299,15 +301,15 @@ export const FeedEditPage = () => {
     await confirmChanges({ feedId });
   };
 
+  const [pageInput, setPageInput] = useState("");
+  const gotoPage = () => {
+    if (!isNaN(Number(pageInput))) {
+      handleErrorsPageChange(Number(pageInput));
+    }
+  };
+
   return (
     <Flex gap={20} vertical style={{ flexGrow: 1, minHeight: 0 }}>
-      <Button
-        loading={confirmChangesLoading}
-        onClick={handleConfirmChanges}
-        style={{ alignSelf: "end", marginRight: 20 }}
-      >
-        Подтвердить изменения
-      </Button>
       <Flex gap={10} style={{ minHeight: 0 }}>
         <div
           ref={tableRef}
@@ -325,6 +327,10 @@ export const FeedEditPage = () => {
             </Flex>
           )}
 
+          {/*{!isFeedLoading && !data &&*/}
+          {/*  <Flex justify="center">Не удалось загрузить данные</Flex>*/}
+          {/*}*/}
+
           {!isFeedLoading && tableData && (
             <Table
               bordered
@@ -340,12 +346,30 @@ export const FeedEditPage = () => {
         </div>
 
         <Flex
-          style={{ width: "25%", minHeight: 0, overflowY: "auto" }}
+          style={{
+            width: "25%",
+            minHeight: 0,
+            overflowY: "auto",
+            paddingInline: 3,
+          }}
           vertical
           gap={20}
         >
-          <Flex style={{ minHeight: 0, overflowY: "auto" }} vertical gap={5}>
-            {isErrorsLoading && <Loader />}
+          <Flex
+            style={{
+              minHeight: 0,
+              overflowY: isErrorsLoading ? "initial" : "auto",
+            }}
+            vertical
+            gap={5}
+          >
+            {isErrorsLoading && (
+              <Flex justify="center">
+                <Loader />
+              </Flex>
+            )}
+
+
             {!isErrorsLoading &&
               errors &&
               !!errors.length &&
@@ -382,30 +406,48 @@ export const FeedEditPage = () => {
                 ))}
           </Flex>
 
-          <Flex
-            align="center"
-            gap={15}
-            style={{ margin: "0 auto", padding: 10 }}
-          >
-            <Button onClick={() => handleErrorsPageChange(1)}>
-              {BR_OPEN}
-              {BR_OPEN}
-            </Button>
-            <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
-              {BR_OPEN}
-            </Button>
-            <div>
-              {errorsPage}
-              <span style={{ color: "#949494" }}> / {totalErrorsPages}</span>
-            </div>
-            <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
-              {BR_CLOSE}
-            </Button>
-            <Button onClick={() => handleErrorsPageChange(totalErrorsPages)}>
-              {BR_CLOSE}
-              {BR_CLOSE}
-            </Button>
+          <Flex justify="space-between">
+            <Flex gap={10} align="center">
+              <Input
+                placeholder="..."
+                value={pageInput}
+                onChange={(e) => setPageInput(e.target.value)}
+                style={{ width: 60 }}
+              />
+              <Button loading={isErrorsLoading} onClick={gotoPage}>
+                <FontAwesomeIcon icon={faArrowRight} />
+              </Button>
+            </Flex>
+
+            <Flex align="center" gap={15} style={{ padding: 10 }}>
+              <Button onClick={() => handleErrorsPageChange(1)}>
+                {BR_OPEN}
+                {BR_OPEN}
+              </Button>
+              <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
+                {BR_OPEN}
+              </Button>
+              <div>
+                {errorsPage}
+                <span style={{ color: "#949494" }}> / {totalErrorsPages}</span>
+              </div>
+              <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
+                {BR_CLOSE}
+              </Button>
+              <Button onClick={() => handleErrorsPageChange(totalErrorsPages)}>
+                {BR_CLOSE}
+                {BR_CLOSE}
+              </Button>
+            </Flex>
           </Flex>
+
+          <Button
+            loading={confirmChangesLoading}
+            onClick={handleConfirmChanges}
+            style={{ paddingBlock: 20 }}
+          >
+            Подтвердить изменения
+          </Button>
         </Flex>
       </Flex>
       {/*<Flex align="center" justify="center">*/}
