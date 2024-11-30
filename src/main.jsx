@@ -34,6 +34,9 @@ createRoot(document.getElementById("root")).render(
             defaultHoverColor: "unset",
             defaultBorderWidth: 2,
           },
+          Typography: {
+            colorBgBase: "#272727",
+          },
           Table: {
             rowHoverBg: "#575757",
           },

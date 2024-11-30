@@ -34,6 +34,18 @@ export const GlobalStyles = createGlobalStyle`
     background-color: inherit !important;
   }
 
+  td {
+    max-width: 400px;
+  }
+
+  .ant-tooltip {
+    background-color: green;
+  }
+
+  .ant-tooltip-placement-bottom .ant-tooltip-arrow, .ant-tooltip-placement-bottomLeft .ant-tooltip-arrow, .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
+    border-bottom-color: green;
+  }
+  
   ::-webkit-scrollbar-corner {
     background-color: transparent;
   }

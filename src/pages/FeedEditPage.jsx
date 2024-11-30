@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import { Flex, Input, Table } from "antd";
+import { Flex, Input, Table, Typography } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
 import {
@@ -167,7 +167,11 @@ export const FeedEditPage = () => {
 
     const columnsNames = data[0].data;
     const columns = columnsNames.map((item, index) => ({
-      title: item,
+      title: (
+        <Typography.Text title={item} ellipsis={true} style={{ minWidth: 50 }}>
+          {item}
+        </Typography.Text>
+      ),
       dataIndex: item,
       key: item,
       render(text, record) {
