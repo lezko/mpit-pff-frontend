@@ -117,12 +117,14 @@ export const FeedEditPage = () => {
     setTotalErrorsPages(errorsResult.data.totalPages - 1);
   };
 
-  const fetchData = async (page) => {
+  const fetchData = async (page, error) => {
     const result = await trigger({ feedId, page });
     setData(result.data);
-    const errorsResult = await triggerErrors({ feedId, page: errorsPage });
-    setErrors(errorsResult.data.content);
-    setTotalErrorsPages(errorsResult.data.totalPages);
+    if (error) {
+      const row = data.find((r) => r.data.index === error.rowIndex);
+      setSolution(row.data[error.columnIndex]);
+    }
+
     const pagesResult = await triggerPages({ feedId });
     setTotalPages(pagesResult.data.count);
   };
@@ -131,6 +133,7 @@ export const FeedEditPage = () => {
   const [errors, setErrors] = useState([]);
   useEffect(() => {
     fetchData(page);
+    fetchErrors(errorsPage);
   }, [page]);
 
   // todo handle request
@@ -151,7 +154,7 @@ export const FeedEditPage = () => {
       console.log(ref.current);
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [selectedError]);
+  }, [selectedError, data]);
 
   const [solution, setSolution] = useState("");
 
@@ -239,9 +242,15 @@ export const FeedEditPage = () => {
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
-    setSolution(data[error.rowIndex].data[error.columnIndex]);
-    setPage(Math.ceil((error.rowIndex + 1) / 25));
-    setSelectedError(error);
+    const row = data.find((r) => r.index === error.rowIndex);
+    if (!row) {
+      const newPage = Math.ceil(error.rowIndex / 25);
+      setPage(newPage);
+      setSelectedError(error);
+      fetchData(newPage, error);
+    } else {
+      setSolution(row.data[error.columnIndex]);
+    }
   };
 
   const [solveError, { isLoading: isSolveLoading }] = useSolveErrorMutation();
