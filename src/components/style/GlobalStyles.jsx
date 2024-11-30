@@ -7,6 +7,11 @@ export const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  html {
+    margin-left: calc(100vw - 100%);
+    margin-right: 0;
+  }
+
   root, html, body, #root {
     height: 100vh;
   }
@@ -25,7 +30,7 @@ export const GlobalStyles = createGlobalStyle`
   thead th {
     white-space: nowrap;
   }
-  
+
   .ant-table-row:nth-child(even) {
     background-color: #272727;
   }
@@ -45,7 +50,7 @@ export const GlobalStyles = createGlobalStyle`
   .ant-tooltip-placement-bottom .ant-tooltip-arrow, .ant-tooltip-placement-bottomLeft .ant-tooltip-arrow, .ant-tooltip-placement-bottomRight .ant-tooltip-arrow {
     border-bottom-color: green;
   }
-  
+
   ::-webkit-scrollbar-corner {
     background-color: transparent;
   }

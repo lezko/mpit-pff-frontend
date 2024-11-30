@@ -38,9 +38,24 @@ export const FeedsListPage = () => {
     <>
       <AddFeedModal open={modalOpen} setOpen={setModalOpen} />
       <Container>
-        <Button onClick={() => setModalOpen(true)} style={{ marginBottom: 40 }}>
-          Добавить
-        </Button>
+        {!!data?.length ? (
+          <Button
+            onClick={() => setModalOpen(true)}
+            style={{ marginBottom: 40 }}
+          >
+            Добавить
+          </Button>
+        ) : (
+          <Flex style={{ marginTop: 60 }} gap={10} vertical align={"center"}>
+            <div>У вас нет загруженных фидов</div>
+            <Button
+              onClick={() => setModalOpen(true)}
+              style={{ marginBottom: 40 }}
+            >
+              Добавить
+            </Button>
+          </Flex>
+        )}
         <Flex gap={10} vertical>
           {data &&
             data.map((item, idx) => (

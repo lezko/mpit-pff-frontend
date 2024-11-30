@@ -375,7 +375,11 @@ export const FeedEditPage = () => {
                       />
                     ))}
               </Flex>
-              <Flex align="center" gap={15} style={{ margin: "0 auto" }}>
+              <Flex
+                align="center"
+                gap={15}
+                style={{ margin: "0 auto", padding: 10 }}
+              >
                 <Button onClick={() => handleErrorsPageChange(1)}>
                   {BR_OPEN}
                   {BR_OPEN}

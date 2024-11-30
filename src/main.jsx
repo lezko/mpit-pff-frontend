@@ -9,6 +9,7 @@ import { GlobalStyles } from "@/components/style/GlobalStyles.jsx";
 
 createRoot(document.getElementById("root")).render(
   <Provider store={store}>
+    <GlobalStyles />
     <ConfigProvider
       theme={{
         token: {
@@ -43,12 +44,12 @@ createRoot(document.getElementById("root")).render(
         },
       }}
     >
-      <GlobalStyles />
-      <Flex vertical style={{ height: "100vh", minHeight: 0 }}>
-        <HeadBar />
-        <RouterProvider router={router} />
-      </Flex>
-      {/*<Outlet />*/}
+      <RouterProvider router={router}>
+        {/*<Flex vertical style={{ height: "100vh", minHeight: 0 }}>*/}
+        {/*  <HeadBar />*/}
+        {/*  <Outlet />*/}
+        {/*</Flex>*/}
+      </RouterProvider>
     </ConfigProvider>
   </Provider>,
 );
