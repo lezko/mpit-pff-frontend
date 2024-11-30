@@ -130,7 +130,7 @@ export const FeedEditPage = () => {
   const fetchErrors = async (page) => {
     const errorsResult = await triggerErrors({ feedId, page: page - 1 });
     setErrors(errorsResult.data.content);
-    setTotalErrorsPages(errorsResult.data.totalPages - 1);
+    setTotalErrorsPages(errorsResult.data.totalPages);
   };
 
   const fetchData = async (page, error) => {

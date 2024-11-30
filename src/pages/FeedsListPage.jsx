@@ -5,6 +5,8 @@ import { useGetFeedsQuery } from "@/api/baseApi.js";
 import { useState } from "react";
 import { AddFeedModal } from "@/components/modals/AddFeedModal.jsx";
 import { Loader } from "@/components/style/Loader.jsx";
+import { faLink } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const items = [
   {
@@ -37,6 +39,10 @@ export const FeedsListPage = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
 
+  const copy = () => {
+    navigator.clipboard.writeText('https://free.moscow/backend/file/fixed');
+  }
+
   return (
     <>
       {isLoading && (
@@ -49,12 +55,21 @@ export const FeedsListPage = () => {
       <AddFeedModal open={modalOpen} setOpen={setModalOpen} />
       <Container>
         {!!data?.length && (
-          <Button
-            onClick={() => setModalOpen(true)}
-            style={{ marginBottom: 40 }}
-          >
-            Добавить фид
-          </Button>
+          <Flex gap={10}>
+            <Button
+              onClick={() => setModalOpen(true)}
+              style={{ marginBottom: 40 }}
+            >
+              Добавить фид
+            </Button>
+            <Button
+              onClick={copy}
+              style={{ marginBottom: 40 }}
+            >
+              Скопировать внешнюю ссылку
+              <FontAwesomeIcon icon={faLink} />
+            </Button>
+          </Flex>
         )}
 
         {data && !data.length && (

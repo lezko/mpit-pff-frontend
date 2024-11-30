@@ -11,7 +11,7 @@ const isDev = process.env.NODE_ENV === "development";
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://${"172.20.10.3"}:8080`,
+    baseUrl: `https://free.moscow/backend`,
     mode: "cors",
   }),
   endpoints: (builder) => ({
