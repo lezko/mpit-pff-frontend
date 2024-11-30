@@ -1,14 +1,17 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Button, Flex, Input, Table, Typography } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
 import {
+  useConfirmChangesMutation,
+  useGetFeedsQuery,
   useLazyGetFeedDataQuery,
   useLazyGetFeedErrorsPagesCountQuery,
   useLazyGetFeedErrorsQuery,
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,
 } from "@/api/baseApi.js";
+import { Container } from "@/components/style/Container.js";
 
 const { TextArea } = Input;
 
@@ -106,10 +109,19 @@ export const FeedEditPage = () => {
   const [page, setPage] = useState(1);
   const [errorsPage, setErrorsPage] = useState(1);
 
+  const { data: allFeedsData } = useGetFeedsQuery();
   const [trigger] = useLazyGetFeedDataQuery();
   const [triggerErrors] = useLazyGetFeedErrorsQuery();
   const [triggerPages] = useLazyGetFeedPagesCountQuery();
   const [triggerErrorsPages] = useLazyGetFeedErrorsPagesCountQuery();
+
+  const navigate = useNavigate();
+  useEffect(() => {
+    const feed = allFeedsData?.find((f) => f.id === feedId);
+    if (feed && feed.status === "COMPLETED") {
+      navigate("/home");
+    }
+  }, [allFeedsData]);
 
   const fetchErrors = async (page) => {
     const errorsResult = await triggerErrors({ feedId, page });
@@ -273,9 +285,21 @@ export const FeedEditPage = () => {
 
   const rootHeight = document.body.getBoundingClientRect().height;
 
-  console.log(errors);
+  const [confirmChanges, { isLoading: confirmChangesLoading }] =
+    useConfirmChangesMutation();
+  const handleConfirmChanges = async () => {
+    await confirmChanges({ feedId });
+  };
+
   return (
-    <Flex vertical style={{ flexGrow: 1, minHeight: 0 }}>
+    <Flex gap={20} vertical style={{ flexGrow: 1, minHeight: 0 }}>
+      <Button
+        loading={confirmChangesLoading}
+        onClick={handleConfirmChanges}
+        style={{ alignSelf: "end", marginRight: 20 }}
+      >
+        Подтвердить изменения
+      </Button>
       <Flex gap={10} style={{ minHeight: 0 }}>
         {tableData && (
           <>

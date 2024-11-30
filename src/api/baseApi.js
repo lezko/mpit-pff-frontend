@@ -62,6 +62,12 @@ export const baseApi = createApi({
       }),
       invalidatesTags: () => ["ERRORS"],
     }),
+    confirmChanges: builder.mutation({
+      query: ({ feedId }) => ({
+        url: `/file/complete/${feedId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -76,4 +82,5 @@ export const {
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,
   useSupressErrorMutation,
+  useConfirmChangesMutation,
 } = baseApi;
