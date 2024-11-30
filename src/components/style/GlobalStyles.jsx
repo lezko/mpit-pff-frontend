@@ -7,6 +7,10 @@ export const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
   }
 
+  root, html, body, #root {
+    height: 100vh;
+  }
+  
   body {
     font-family: Roboto, sans-serif;
     font-weight: 600;

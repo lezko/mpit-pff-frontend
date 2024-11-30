@@ -41,7 +41,7 @@ createRoot(document.getElementById("root")).render(
       }}
     >
       <GlobalStyles />
-      <Flex vertical style={{ height: "10vh", minHeight: 0 }}>
+      <Flex vertical style={{ height: "100vh", minHeight: 0 }}>
         <HeadBar />
         <RouterProvider router={router} />
       </Flex>

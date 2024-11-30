@@ -224,8 +224,8 @@ export const FeedEditPage = () => {
   };
 
   return (
-    <Flex vertical style={{ flexGrow: 1 }}>
-      <Flex gap={10}>
+    <Flex vertical style={{ flexGrow: 1, minHeight: 0 }}>
+      <Flex gap={10} style={{ minHeight: 0 }}>
         {tableData && (
           <>
             <Table
@@ -234,13 +234,14 @@ export const FeedEditPage = () => {
                 width: "80%",
                 overflowX: "auto",
                 overflowY: "auto",
-                maxHeight: "80vh",
+                minHeight: 0,
+                // maxHeight: "80vh",
               }}
               columns={tableData.columns}
               dataSource={tableData.dataSource}
             ></Table>
 
-            <Flex style={{ width: "20%" }} vertical gap={5}>
+            <Flex style={{ width: "20%", minHeight: 0, overflowY: 'auto' }} vertical gap={5}>
               {errors &&
                 errors.length &&
                 errors.map((error) => (
