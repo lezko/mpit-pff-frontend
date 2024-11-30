@@ -10,7 +10,7 @@ export const GlobalStyles = createGlobalStyle`
   root, html, body, #root {
     height: 100vh;
   }
-  
+
   body {
     font-family: Roboto, sans-serif;
     font-weight: 600;
@@ -20,7 +20,18 @@ export const GlobalStyles = createGlobalStyle`
 
   .ant-table-row:nth-child(odd) {
     background-color: #444343;
+  }
 
+  thead th {
+    white-space: nowrap;
+  }
+  
+  .ant-table-row:nth-child(even) {
+    background-color: #272727;
+  }
+
+  tbody .ant-table-cell-fix-left {
+    background-color: inherit !important;
   }
 
   ::-webkit-scrollbar-corner {

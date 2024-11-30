@@ -152,7 +152,7 @@ export const Error = ({
             {description || "Нет данных для отображения."}
           </ErrorBody>
           <Flex justify="space-between">
-            <Flex>
+            <Flex gap={5}>
               <Button loading={active && loading} onClick={onSave}>
                 Сохранить
               </Button>

@@ -8,8 +8,27 @@ import {
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,
 } from "@/api/baseApi.js";
+import { createStyles } from "antd-style";
 
 const { TextArea } = Input;
+
+const useStyle = createStyles(({ css, token }) => {
+  const { antCls } = token;
+  return {
+    customTable: css`
+      ${antCls}-table {
+        ${antCls}-table-container {
+          ${antCls}-table-body,
+          ${antCls}-table-content {
+            scrollbar-width: thin;
+            scrollbar-color: #eaeaea transparent;
+            scrollbar-gutter: stable;
+          }
+        }
+      }
+    `,
+  };
+});
 
 const errors = [
   {
@@ -94,6 +113,7 @@ export const FeedEditPage = () => {
   const [selectedError, setSelectedError] = useState();
 
   const ref = useRef(null);
+  const tableRef = useRef(null);
   const [shouldUpdate, setShouldUpdate] = useState(false);
 
   const [totalPages, setTotalPages] = useState(0);
@@ -120,7 +140,20 @@ export const FeedEditPage = () => {
 
   // todo handle request
   useEffect(() => {
-    if (selectedError && ref.current) {
+    if (
+      selectedError &&
+      tableRef.current &&
+      tableRef.current.scroll &&
+      ref.current
+    ) {
+      console.log(ref.current);
+      const tableRect = tableRef.current.getBoundingClientRect();
+      const cellRect = ref.current.getBoundingClientRect();
+      console.log(tableRect);
+
+      // const t = cellRect.top - tableRect.height + cellRect.height
+      // tableRef.current.scroll({ top: 100, left: 100 });
+      console.log(ref.current);
       ref.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [selectedError]);
@@ -158,7 +191,7 @@ export const FeedEditPage = () => {
             record.key === selectedError?.rowIndex ? (
               <div ref={ref}>
                 <TextArea
-                  style={{ width: 120 }}
+                  style={{ width: 120, resize: "both" }}
                   ref={ref}
                   value={solution}
                   onChange={(e) => setSolution(e.target.value)}
@@ -170,6 +203,8 @@ export const FeedEditPage = () => {
         };
       },
     }));
+    columns[0].fixed = "left";
+
     const dataSource = data.slice(1).map(({ data, index }) => {
       const obj = { key: index };
       for (let i = 0; i < columnsNames.length; i++) {
@@ -205,7 +240,8 @@ export const FeedEditPage = () => {
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
-    setPage(Math.ceil(error.rowIndex / 25));
+    setSolution(data[error.rowIndex].data[error.columnIndex]);
+    setPage(Math.ceil((error.rowIndex + 1) / 25));
     setSelectedError(error);
   };
   //
@@ -220,20 +256,33 @@ export const FeedEditPage = () => {
     setSelectedError(undefined);
   };
 
+  const { styles } = useStyle();
+
+  const rootHeight = document.body.getBoundingClientRect().height;
+
+  console.log(rootHeight);
   return (
     <Flex vertical style={{ flexGrow: 1, minHeight: 0 }}>
       <Flex gap={10} style={{ minHeight: 0 }}>
         {tableData && (
           <>
             <div
+              ref={tableRef}
               style={{
-                width: "80%",
-                overflowX: "auto",
-                overflowY: "auto",
+                width: "75%",
+                // overflowX: "auto",
+                // overflowY: "auto",
                 minHeight: 0,
+                maxHeight: "100%",
               }}
             >
               <Table
+                bordered
+                // className={styles.customTable}
+                scroll={{
+                  x: "max-content",
+                  y: rootHeight - 106 - 2 * 56.48 + 15,
+                }}
                 pagination={false}
                 columns={tableData.columns}
                 dataSource={tableData.dataSource}
@@ -241,7 +290,7 @@ export const FeedEditPage = () => {
             </div>
 
             <Flex
-              style={{ width: "20%", minHeight: 0, overflowY: "auto" }}
+              style={{ width: "25%", minHeight: 0, overflowY: "auto" }}
               vertical
               gap={5}
             >
