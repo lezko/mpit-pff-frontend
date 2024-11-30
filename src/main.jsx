@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { Outlet, RouterProvider } from "react-router-dom";
 import { router } from "@/router.jsx";
-import { ConfigProvider } from "antd";
+import { ConfigProvider, Flex } from "antd";
 import { Provider } from "react-redux";
 import { store } from "@/store.js";
 import { HeadBar } from "@/components/HeadBar.jsx";
@@ -25,16 +25,26 @@ createRoot(document.getElementById("root")).render(
             defaultHoverColor: "unset",
             defaultBorderWidth: 2,
           },
+          TextArea: {
+            defaultColor: "#fff",
+            defaultBorderColor: "#fff",
+            defaultFontWeight: 700,
+            defaultBg: "transparent",
+            defaultHoverBg: "#a3a3a3",
+            defaultHoverColor: "unset",
+            defaultBorderWidth: 2,
+          },
           Table: {
-            rowHoverBg: '#575757'
+            rowHoverBg: "#575757",
           },
         },
       }}
     >
       <GlobalStyles />
-      <HeadBar />
-      <RouterProvider router={router} />
-
+      <Flex vertical style={{ height: "10vh", minHeight: 0 }}>
+        <HeadBar />
+        <RouterProvider router={router} />
+      </Flex>
       {/*<Outlet />*/}
     </ConfigProvider>
   </Provider>,

@@ -1,14 +1,15 @@
 import { useParams } from "react-router-dom";
-import { Button, Flex, Input, Table } from "antd";
+import { Flex, Input, Table } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
-import { Container } from "@/components/style/Container.js";
 import {
-  useGetFeedColumnsNamesQuery,
   useLazyGetFeedDataQuery,
   useLazyGetFeedErrorsQuery,
   useLazyGetFeedPagesCountQuery,
+  useSolveErrorMutation,
 } from "@/api/baseApi.js";
+
+const { TextArea } = Input;
 
 const errors = [
   {
@@ -117,7 +118,6 @@ export const FeedEditPage = () => {
     const result = await trigger({ feedId, page });
     setData(result.data);
     const errorsResult = await triggerErrors({ feedId });
-    console.log(errorsResult.data);
     setErrors(errorsResult.data);
     const pagesResult = await triggerPages({ feedId });
     setTotalPages(pagesResult.data.count);
@@ -131,75 +131,80 @@ export const FeedEditPage = () => {
     fetchData(page);
   }, [page]);
 
+  const [solution, setSolution] = useState("");
+
   useEffect(() => {
-    // if (!data || !data.length) {
-    //   return;
-    // }
-    //
-    // const columnsNames = data[0].data;
-    // const columns = columnsNames.map((item, index) => ({
-    //   title: item,
-    //   dataIndex: item,
-    //   key: item,
-    //   render(text, record) {
-    //     if (
-    //       index === selectedError?.columnIndex &&
-    //       record.key === selectedError?.rowIndex
-    //     ) {
-    //       console.log("sldkfjs;dlfkj");
-    //       setShouldUpdate(true);
-    //     }
-    //     return {
-    //       props: {
-    //         style: {
-    //           backgroundColor:
-    //             index === selectedError?.columnIndex &&
-    //             record.key === selectedError?.rowIndex
-    //               ? "#474747"
-    //               : "unset",
-    //         },
-    //       },
-    //       children:
-    //         index === selectedError?.columnIndex &&
-    //         record.key === selectedError?.rowIndex ? (
-    //           <>
-    //             <Input style={{ width: 120 }} ref={ref} defaultValue={text} />
-    //           </>
-    //         ) : (
-    //           text
-    //         ),
-    //     };
-    //   },
-    // }));
-    // const dataSource = data.slice(1).map(({ data, index }) => {
-    //   const obj = { key: index };
-    //   for (let i = 0; i < columnsNames.length; i++) {
-    //     obj[columnsNames[i]] = data[i];
-    //   }
-    //   return obj;
-    // });
-    // setTableData({
-    //   columns,
-    //   dataSource,
-    // });
-    setTableData({
-      dataSource: Array(50)
-        .fill(null)
-        .map((_, i) => ({
-          key: i,
-          name: "Mike",
-          age: i,
-          address: "10 Downing Street",
-        })),
-      columns: Array(50)
-        .fill(null)
-        .map((_, i) => ({
-          title: i,
-          dataIndex: "name",
-          key: i,
-        })),
+    if (!data || !data.length) {
+      return;
+    }
+
+    const columnsNames = data[0].data;
+    const columns = columnsNames.map((item, index) => ({
+      title: item,
+      dataIndex: item,
+      key: item,
+      render(text, record) {
+        if (
+          index === selectedError?.columnIndex &&
+          record.key === selectedError?.rowIndex
+        ) {
+        }
+        return {
+          props: {
+            style: {
+              backgroundColor:
+                index === selectedError?.columnIndex &&
+                record.key === selectedError?.rowIndex
+                  ? "#474747"
+                  : "unset",
+            },
+          },
+          children:
+            index === selectedError?.columnIndex &&
+            record.key === selectedError?.rowIndex ? (
+              <>
+                <TextArea
+                  style={{ width: 120 }}
+                  // ref={ref}
+                  value={solution}
+                  onChange={(e) => setSolution(e.target.value)}
+                />
+              </>
+            ) : (
+              text
+            ),
+        };
+      },
+    }));
+    const dataSource = data.slice(1).map(({ data, index }) => {
+      const obj = { key: index };
+      for (let i = 0; i < columnsNames.length; i++) {
+        obj[columnsNames[i]] = data[i];
+      }
+      return obj;
     });
-  }, [data, selectedError]);
+    setTableData({
+      columns,
+      dataSource,
+    });
+    // setTableData({
+    //   dataSource: Array(50)
+    //     .fill(null)
+    //     .map((_, i) => ({
+    //       key: i,
+    //       name: "Mike",
+    //       age: i,
+    //       address: "10 Downing Street",
+    //     })),
+    //   columns: Array(50)
+    //     .fill(null)
+    //     .map((_, i) => ({
+    //       title: i,
+    //       dataIndex: "name",
+    //       key: i,
+    //     })),
+    // });
+  }, [data, selectedError, solution]);
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
@@ -212,9 +217,15 @@ export const FeedEditPage = () => {
   //
   // }
 
+  const [solveError, { isLoading: isSolveLoading }] = useSolveErrorMutation();
+  const handleSave = async () => {
+    await solveError({ errorId: selectedError.id, value: solution });
+    setSelectedError(undefined);
+  };
+
   return (
-    <div>
-      <Flex gap={10} style={{ paddingInline: 10 }}>
+    <Flex vertical style={{ flexGrow: 1 }}>
+      <Flex gap={10}>
         {tableData && (
           <>
             <Table
@@ -228,14 +239,26 @@ export const FeedEditPage = () => {
               columns={tableData.columns}
               dataSource={tableData.dataSource}
             ></Table>
+
             <Flex style={{ width: "20%" }} vertical gap={5}>
               {errors &&
                 errors.length &&
                 errors.map((error) => (
                   <Error
+                    loading={isSolveLoading}
                     active={error.id === selectedError?.id}
+                    onSave={handleSave}
                     onClick={handleErrorClick}
-                    onCancel={() => setSelectedError(undefined)}
+                    onCancel={() => {
+                      setSelectedError(undefined);
+                      setSolution("");
+                    }}
+                    aiSolution={
+                      error.errorType === "AI"
+                        ? error.errorSolve.value
+                        : undefined
+                    }
+                    onFillAi={() => setSolution(error.errorSolve.value)}
                     key={error.id}
                     id={error.id}
                     title={error.title}
@@ -256,6 +279,6 @@ export const FeedEditPage = () => {
       {/*      <Button onClick={() => setPage(i + 1)}>{i + 1}</Button>*/}
       {/*    ))}*/}
       {/*</Flex>*/}
-    </div>
+    </Flex>
   );
 };

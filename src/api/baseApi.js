@@ -4,10 +4,14 @@ import { fetchBaseQuery } from "@reduxjs/toolkit/query";
 const MISHA = "192.168.174.242";
 const EGOR = "192.168.174.110";
 
+const HOST = "free.moscow";
+
+const isDev = process.env.NODE_ENV === "development";
+
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://localhost:8080`,
+    baseUrl: `http://${HOST}:8080`,
     mode: "cors",
   }),
   endpoints: (builder) => ({
@@ -24,6 +28,7 @@ export const baseApi = createApi({
     }),
     getFeedErrors: builder.query({
       query: ({ feedId }) => `/error/${feedId}`,
+      providesTags: () => ["ERRORS"],
     }),
     getFeedPagesCount: builder.query({
       query: ({ feedId }) => `/file/${feedId}/pages`,
@@ -36,6 +41,17 @@ export const baseApi = createApi({
       }),
       invalidatesTags: () => ["FEEDS"],
     }),
+    solveError: builder.mutation({
+      query: ({ errorId, value }) => ({
+        url: `/error`,
+        method: "POST",
+        body: {
+          errorId,
+          value,
+        },
+      }),
+      invalidatesTags: () => ["ERRORS"],
+    }),
   }),
 });
 
@@ -47,4 +63,5 @@ export const {
   useLazyGetFeedErrorsQuery,
   useAddFeedMutation,
   useLazyGetFeedPagesCountQuery,
+  useSolveErrorMutation,
 } = baseApi;
