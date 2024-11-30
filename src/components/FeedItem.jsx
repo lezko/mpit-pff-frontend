@@ -10,8 +10,22 @@ const Wrapper = styled(Flex)`
   border-radius: 5px;
 `;
 
+const statusColor = {
+  CREATED: "#706d6d",
+  PROCESSING: "#c49e25",
+  PROCESSED: "#509f19",
+  COMPLETED: "#356912",
+};
+
+const statusLabel = {
+  CREATED: "СОЗДАН",
+  PROCESSING: "В ОБРАБОТКЕ",
+  PROCESSED: "ОБРАБОТАН",
+  COMPLETED: "ЗАВЕРШЕН",
+};
+
 const Status = styled("div")`
-  background-color: #8d8d8d;
+  background-color: ${(p) => p.$color};
   color: #d9d9d9;
   border-radius: 10px;
   align-self: start;
@@ -27,7 +41,9 @@ export const FeedItem = ({ id, name, count, status, errors }) => {
         <h3>{name}</h3>
       </Flex>
       <div>Количество позиций: {status === "PROCESSING" ? "-" : count}</div>
-      {status && <Status>{status}</Status>}
+      {status && (
+        <Status $color={statusColor[status]}>{statusLabel[status]}</Status>
+      )}
       <Flex gap={10}>
         {status === "PROCESSED" && (
           <Button

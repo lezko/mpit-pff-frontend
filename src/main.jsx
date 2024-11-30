@@ -19,6 +19,11 @@ createRoot(document.getElementById("root")).render(
 
         },
         components: {
+          Select: {
+            defaultBorderColor: "#fff",
+            hoverBorderColor: "#fff",
+            optionSelectedBg: '#818181'
+          },
           Input: {
             activeBorderColor: "#c7c7c7",
             hoverBorderColor: "#fff",

@@ -11,7 +11,7 @@ const isDev = process.env.NODE_ENV === "development";
 export const baseApi = createApi({
   reducerPath: "baseApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `https://free.moscow/backend`,
+    baseUrl: `http://172.20.10.3:8080`,
     mode: "cors",
   }),
   endpoints: (builder) => ({
@@ -24,10 +24,17 @@ export const baseApi = createApi({
       queryFn: ({ feedId }) => ({ data: ["1", "2", "3", "4", "5"] }),
     }),
     getFeedData: builder.query({
+      keepUnusedDataFor: 0,
       query: ({ feedId, page }) => `/file/${feedId}/${page}`,
     }),
     getFeedErrors: builder.query({
-      query: ({ feedId, page }) => `/error/${feedId}/${page}`,
+      query: ({ feedId, page, errorType }) => {
+        const res = {};
+        if (errorType !== "ALL") {
+          return `/error/filter/${feedId}/${page}?errorType=${errorType}`;
+        }
+        return `/error/${feedId}/${page}`;
+      },
       providesTags: () => ["ERRORS"],
     }),
     getFeedErrorsPagesCount: builder.query({

@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Flex, Input, Table, Typography } from "antd";
+import { Button, Flex, Input, Select, Table, Typography } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
 import {
@@ -110,6 +110,7 @@ export const FeedEditPage = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalErrorsPages, setTotalErrorsPages] = useState(0);
   const [page, setPage] = useState(1);
+  const [errorsFilter, setErrorsFilter] = useState("ALL");
   const [errorsPage, setErrorsPage] = useState(1);
 
   const { data: allFeedsData } = useGetFeedsQuery();
@@ -127,8 +128,12 @@ export const FeedEditPage = () => {
     }
   }, [allFeedsData]);
 
-  const fetchErrors = async (page) => {
-    const errorsResult = await triggerErrors({ feedId, page: page - 1 });
+  const fetchErrors = async (page, filter) => {
+    const errorsResult = await triggerErrors({
+      feedId,
+      page: page - 1,
+      errorType: filter,
+    });
     setErrors(errorsResult.data.content);
     setTotalErrorsPages(errorsResult.data.totalPages);
   };
@@ -149,8 +154,8 @@ export const FeedEditPage = () => {
   const [errors, setErrors] = useState([]);
   useEffect(() => {
     fetchData(page);
-    fetchErrors(errorsPage);
-  }, [page]);
+    fetchErrors(errorsPage, errorsFilter);
+  }, [page, errorsFilter]);
 
   // todo handle request
   useEffect(() => {
@@ -274,13 +279,13 @@ export const FeedEditPage = () => {
   const handleSave = async () => {
     await solveError({ errorId: selectedError.id, value: solution });
     fetchData(page);
-    fetchErrors(errorsPage);
+    fetchErrors(errorsPage, errorsFilter);
     setSelectedError(undefined);
   };
 
   const handleSuppress = () => {
     fetchData(page);
-    fetchErrors(errorsPage);
+    fetchErrors(errorsPage, errorsFilter);
     setSelectedError(undefined);
   };
 
@@ -290,7 +295,7 @@ export const FeedEditPage = () => {
     }
 
     setErrorsPage(newPage);
-    fetchErrors(newPage);
+    fetchErrors(newPage, errorsFilter);
   };
 
   const rootHeight = document.body.getBoundingClientRect().height;
@@ -350,11 +355,26 @@ export const FeedEditPage = () => {
             width: "25%",
             minHeight: 0,
             overflowY: "auto",
-            paddingInline: 3,
+            padding: 3,
           }}
           vertical
           gap={20}
         >
+          <Select
+            defaultValue="ALL"
+            options={[
+              { label: "Все", value: "ALL" },
+              { label: "Технические", value: "TECHNICAL" },
+              { label: "Логические", value: "LOGICAL" },
+              { label: "Найденные ИИ", value: "AI" },
+            ]}
+            onChange={(v, option) => {
+              setErrorsPage(1);
+              setErrorsFilter(v);
+              fetchErrors(1, v);
+            }}
+          />
+
           <Flex
             style={{
               minHeight: 0,
@@ -368,7 +388,6 @@ export const FeedEditPage = () => {
                 <Loader />
               </Flex>
             )}
-
 
             {!isErrorsLoading &&
               errors &&
@@ -406,40 +425,47 @@ export const FeedEditPage = () => {
                 ))}
           </Flex>
 
-          <Flex justify="space-between">
-            <Flex gap={10} align="center">
-              <Input
-                placeholder="..."
-                value={pageInput}
-                onChange={(e) => setPageInput(e.target.value)}
-                style={{ width: 60 }}
-              />
-              <Button loading={isErrorsLoading} onClick={gotoPage}>
-                <FontAwesomeIcon icon={faArrowRight} />
-              </Button>
-            </Flex>
+          {!!errors.length && (
+            <Flex justify="space-between">
+              <Flex gap={10} align="center">
+                <Input
+                  placeholder="..."
+                  value={pageInput}
+                  onChange={(e) => setPageInput(e.target.value)}
+                  style={{ width: 60 }}
+                />
+                <Button loading={isErrorsLoading} onClick={gotoPage}>
+                  <FontAwesomeIcon icon={faArrowRight} />
+                </Button>
+              </Flex>
 
-            <Flex align="center" gap={15} style={{ padding: 10 }}>
-              <Button onClick={() => handleErrorsPageChange(1)}>
-                {BR_OPEN}
-                {BR_OPEN}
-              </Button>
-              <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
-                {BR_OPEN}
-              </Button>
-              <div>
-                {errorsPage}
-                <span style={{ color: "#949494" }}> / {totalErrorsPages}</span>
-              </div>
-              <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
-                {BR_CLOSE}
-              </Button>
-              <Button onClick={() => handleErrorsPageChange(totalErrorsPages)}>
-                {BR_CLOSE}
-                {BR_CLOSE}
-              </Button>
+              <Flex align="center" gap={15} style={{ padding: 10 }}>
+                <Button onClick={() => handleErrorsPageChange(1)}>
+                  {BR_OPEN}
+                  {BR_OPEN}
+                </Button>
+                <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
+                  {BR_OPEN}
+                </Button>
+                <div>
+                  {errorsPage}
+                  <span style={{ color: "#949494" }}>
+                    {" "}
+                    / {totalErrorsPages}
+                  </span>
+                </div>
+                <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
+                  {BR_CLOSE}
+                </Button>
+                <Button
+                  onClick={() => handleErrorsPageChange(totalErrorsPages)}
+                >
+                  {BR_CLOSE}
+                  {BR_CLOSE}
+                </Button>
+              </Flex>
             </Flex>
-          </Flex>
+          )}
 
           <Button
             loading={confirmChangesLoading}
