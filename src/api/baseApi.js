@@ -27,8 +27,11 @@ export const baseApi = createApi({
       query: ({ feedId, page }) => `/file/${feedId}/${page}`,
     }),
     getFeedErrors: builder.query({
-      query: ({ feedId }) => `/error/${feedId}`,
+      query: ({ feedId, page }) => `/error/${feedId}/${page}`,
       providesTags: () => ["ERRORS"],
+    }),
+    getFeedErrorsPagesCount: builder.query({
+      query: ({ feedId }) => `/error/${feedId}/pages`,
     }),
     getFeedPagesCount: builder.query({
       query: ({ feedId }) => `/file/${feedId}/pages`,
@@ -61,6 +64,7 @@ export const {
   useGetFeedColumnsNamesQuery,
   useLazyGetFeedDataQuery,
   useLazyGetFeedErrorsQuery,
+  useLazyGetFeedErrorsPagesCountQuery,
   useAddFeedMutation,
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,

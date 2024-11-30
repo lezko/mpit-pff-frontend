@@ -1,34 +1,19 @@
 import { useParams } from "react-router-dom";
-import { Flex, Input, Table, Typography } from "antd";
+import { Button, Flex, Input, Table, Typography } from "antd";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Error } from "@/components/Error.jsx";
 import {
   useLazyGetFeedDataQuery,
+  useLazyGetFeedErrorsPagesCountQuery,
   useLazyGetFeedErrorsQuery,
   useLazyGetFeedPagesCountQuery,
   useSolveErrorMutation,
 } from "@/api/baseApi.js";
-import { createStyles } from "antd-style";
 
 const { TextArea } = Input;
 
-const useStyle = createStyles(({ css, token }) => {
-  const { antCls } = token;
-  return {
-    customTable: css`
-      ${antCls}-table {
-        ${antCls}-table-container {
-          ${antCls}-table-body,
-          ${antCls}-table-content {
-            scrollbar-width: thin;
-            scrollbar-color: #eaeaea transparent;
-            scrollbar-gutter: stable;
-          }
-        }
-      }
-    `,
-  };
-});
+const BR_OPEN = "<";
+const BR_CLOSE = ">";
 
 const errors = [
   {
@@ -117,17 +102,27 @@ export const FeedEditPage = () => {
   const [shouldUpdate, setShouldUpdate] = useState(false);
 
   const [totalPages, setTotalPages] = useState(0);
+  const [totalErrorsPages, setTotalErrorsPages] = useState(0);
   const [page, setPage] = useState(1);
+  const [errorsPage, setErrorsPage] = useState(1);
 
   const [trigger] = useLazyGetFeedDataQuery();
   const [triggerErrors] = useLazyGetFeedErrorsQuery();
   const [triggerPages] = useLazyGetFeedPagesCountQuery();
+  const [triggerErrorsPages] = useLazyGetFeedErrorsPagesCountQuery();
+
+  const fetchErrors = async (page) => {
+    const errorsResult = await triggerErrors({ feedId, page });
+    setErrors(errorsResult.data.content);
+    setTotalErrorsPages(errorsResult.data.totalPages - 1);
+  };
 
   const fetchData = async (page) => {
     const result = await trigger({ feedId, page });
     setData(result.data);
-    const errorsResult = await triggerErrors({ feedId });
-    setErrors(errorsResult.data);
+    const errorsResult = await triggerErrors({ feedId, page: errorsPage });
+    setErrors(errorsResult.data.content);
+    setTotalErrorsPages(errorsResult.data.totalPages);
     const pagesResult = await triggerPages({ feedId });
     setTotalPages(pagesResult.data.count);
   };
@@ -176,7 +171,7 @@ export const FeedEditPage = () => {
       key: item,
       render(text, record) {
         if (
-          index === selectedError?.columnIndex - 1 &&
+          index === selectedError?.columnIndex &&
           record.key === selectedError?.rowIndex
         ) {
         }
@@ -184,14 +179,14 @@ export const FeedEditPage = () => {
           props: {
             style: {
               backgroundColor:
-                index === selectedError?.columnIndex - 1 &&
+                index === selectedError?.columnIndex &&
                 record.key === selectedError?.rowIndex
                   ? "#474747"
                   : "unset",
             },
           },
           children:
-            index === selectedError?.columnIndex - 1 &&
+            index === selectedError?.columnIndex &&
             record.key === selectedError?.rowIndex ? (
               <div ref={ref}>
                 <TextArea
@@ -244,15 +239,10 @@ export const FeedEditPage = () => {
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
-    setSolution(data[error.rowIndex].data[error.columnIndex - 1]);
+    setSolution(data[error.rowIndex].data[error.columnIndex]);
     setPage(Math.ceil((error.rowIndex + 1) / 25));
     setSelectedError(error);
   };
-  //
-  // const pagesNumbers = [];
-  // for (let i = Math.max(1, ); i < ; i++) {
-  //
-  // }
 
   const [solveError, { isLoading: isSolveLoading }] = useSolveErrorMutation();
   const handleSave = async () => {
@@ -261,11 +251,18 @@ export const FeedEditPage = () => {
     setSelectedError(undefined);
   };
 
-  const { styles } = useStyle();
+  const handleErrorsPageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalErrorsPages) {
+      return;
+    }
+
+    setErrorsPage(newPage);
+    fetchErrors(newPage);
+  };
 
   const rootHeight = document.body.getBoundingClientRect().height;
 
-  console.log(rootHeight);
+  console.log(errors);
   return (
     <Flex vertical style={{ flexGrow: 1, minHeight: 0 }}>
       <Flex gap={10} style={{ minHeight: 0 }}>
@@ -283,7 +280,6 @@ export const FeedEditPage = () => {
             >
               <Table
                 bordered
-                // className={styles.customTable}
                 scroll={{
                   x: "max-content",
                   y: rootHeight - 106 - 2 * 56.48 + 15,
@@ -297,38 +293,63 @@ export const FeedEditPage = () => {
             <Flex
               style={{ width: "25%", minHeight: 0, overflowY: "auto" }}
               vertical
-              gap={5}
+              gap={20}
             >
-              {errors &&
-                errors.length &&
-                errors
-                  .slice()
-                  .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
-                  .map((error) => (
-                    <Error
-                      loading={isSolveLoading}
-                      active={error.id === selectedError?.id}
-                      onSave={handleSave}
-                      onClick={handleErrorClick}
-                      onCancel={() => {
-                        setSelectedError(undefined);
-                        setSolution("");
-                      }}
-                      aiSolution={
-                        error.errorType === "AI"
-                          ? error.errorSolve.value
-                          : undefined
-                      }
-                      onFillAi={() => setSolution(error.errorSolve.value)}
-                      key={error.id}
-                      id={error.id}
-                      title={error.title}
-                      description={error.description}
-                      row={error.rowIndex}
-                      col={error.columnIndex}
-                      errorType={error.errorType}
-                    />
-                  ))}
+              <Flex
+                style={{ minHeight: 0, overflowY: "auto" }}
+                vertical
+                gap={5}
+              >
+                {errors &&
+                  errors.length &&
+                  errors
+                    .slice()
+                    .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
+                    .map((error) => (
+                      <Error
+                        loading={isSolveLoading}
+                        active={error.id === selectedError?.id}
+                        onSave={handleSave}
+                        onClick={handleErrorClick}
+                        onCancel={() => {
+                          setSelectedError(undefined);
+                          setSolution("");
+                        }}
+                        aiSolution={
+                          error.errorType === "AI"
+                            ? error.errorSolve.value
+                            : undefined
+                        }
+                        onFillAi={() => setSolution(error.errorSolve.value)}
+                        key={error.id}
+                        id={error.id}
+                        title={error.title}
+                        description={error.description}
+                        row={error.rowIndex}
+                        col={error.columnIndex}
+                        errorType={error.errorType}
+                      />
+                    ))}
+              </Flex>
+              <Flex align="center" gap={15} style={{ margin: "0 auto" }}>
+                <Button onClick={() => handleErrorsPageChange(1)}>
+                  {BR_OPEN}
+                  {BR_OPEN}
+                </Button>
+                <Button onClick={() => handleErrorsPageChange(errorsPage - 1)}>
+                  {BR_OPEN}
+                </Button>
+                <div>{errorsPage}</div>
+                <Button onClick={() => handleErrorsPageChange(errorsPage + 1)}>
+                  {BR_CLOSE}
+                </Button>
+                <Button
+                  onClick={() => handleErrorsPageChange(totalErrorsPages)}
+                >
+                  {BR_CLOSE}
+                  {BR_CLOSE}
+                </Button>
+              </Flex>
             </Flex>
           </>
         )}
