@@ -122,7 +122,7 @@ export const Error = ({
       <ErrorHeader>
         <h2 style={{ margin: 0, color: "#fff" }}>{title}</h2>
         <L onClick={() => onClick(id)}>
-          строка {row + 1}, столбец {col + 1}
+          строка {row}, столбец {col}
         </L>
         <hr />
         {errorType === "AI" || errorType === "LOGICAL" ? (

@@ -172,7 +172,7 @@ export const FeedEditPage = () => {
       key: item,
       render(text, record) {
         if (
-          index === selectedError?.columnIndex &&
+          index === selectedError?.columnIndex - 1 &&
           record.key === selectedError?.rowIndex
         ) {
         }
@@ -180,14 +180,14 @@ export const FeedEditPage = () => {
           props: {
             style: {
               backgroundColor:
-                index === selectedError?.columnIndex &&
+                index === selectedError?.columnIndex - 1 &&
                 record.key === selectedError?.rowIndex
                   ? "#474747"
                   : "unset",
             },
           },
           children:
-            index === selectedError?.columnIndex &&
+            index === selectedError?.columnIndex - 1 &&
             record.key === selectedError?.rowIndex ? (
               <div ref={ref}>
                 <TextArea
@@ -240,7 +240,7 @@ export const FeedEditPage = () => {
 
   const handleErrorClick = (id) => {
     const error = errors.find((e) => e.id === id);
-    setSolution(data[error.rowIndex].data[error.columnIndex]);
+    setSolution(data[error.rowIndex].data[error.columnIndex - 1]);
     setPage(Math.ceil((error.rowIndex + 1) / 25));
     setSelectedError(error);
   };
@@ -253,6 +253,7 @@ export const FeedEditPage = () => {
   const [solveError, { isLoading: isSolveLoading }] = useSolveErrorMutation();
   const handleSave = async () => {
     await solveError({ errorId: selectedError.id, value: solution });
+    fetchData(page);
     setSelectedError(undefined);
   };
 
@@ -296,31 +297,34 @@ export const FeedEditPage = () => {
             >
               {errors &&
                 errors.length &&
-                errors.map((error) => (
-                  <Error
-                    loading={isSolveLoading}
-                    active={error.id === selectedError?.id}
-                    onSave={handleSave}
-                    onClick={handleErrorClick}
-                    onCancel={() => {
-                      setSelectedError(undefined);
-                      setSolution("");
-                    }}
-                    aiSolution={
-                      error.errorType === "AI"
-                        ? error.errorSolve.value
-                        : undefined
-                    }
-                    onFillAi={() => setSolution(error.errorSolve.value)}
-                    key={error.id}
-                    id={error.id}
-                    title={error.title}
-                    description={error.description}
-                    row={error.rowIndex}
-                    col={error.columnIndex}
-                    errorType={error.errorType}
-                  />
-                ))}
+                errors
+                  .slice()
+                  .filter((e) => e.rowIndex > 0 && e.columnIndex > 0)
+                  .map((error) => (
+                    <Error
+                      loading={isSolveLoading}
+                      active={error.id === selectedError?.id}
+                      onSave={handleSave}
+                      onClick={handleErrorClick}
+                      onCancel={() => {
+                        setSelectedError(undefined);
+                        setSolution("");
+                      }}
+                      aiSolution={
+                        error.errorType === "AI"
+                          ? error.errorSolve.value
+                          : undefined
+                      }
+                      onFillAi={() => setSolution(error.errorSolve.value)}
+                      key={error.id}
+                      id={error.id}
+                      title={error.title}
+                      description={error.description}
+                      row={error.rowIndex}
+                      col={error.columnIndex}
+                      errorType={error.errorType}
+                    />
+                  ))}
             </Flex>
           </>
         )}
