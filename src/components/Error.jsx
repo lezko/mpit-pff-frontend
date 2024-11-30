@@ -114,6 +114,7 @@ export const Error = ({
   active,
   solved,
   onSave,
+  onSuppress,
   onClick,
   onFillAi,
   onCancel,
@@ -127,7 +128,7 @@ export const Error = ({
 
   const handleSuppress = async () => {
     await supressError({ errorId: id });
-    onCancel();
+    onSuppress();
   };
 
   return (

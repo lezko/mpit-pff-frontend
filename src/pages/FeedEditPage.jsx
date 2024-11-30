@@ -274,6 +274,12 @@ export const FeedEditPage = () => {
     setSelectedError(undefined);
   };
 
+  const handleSuppress = () => {
+    fetchData(page);
+    fetchErrors(errorsPage);
+    setSelectedError(undefined);
+  };
+
   const handleErrorsPageChange = (newPage) => {
     if (newPage < 1 || newPage > totalErrorsPages) {
       return;
@@ -347,6 +353,7 @@ export const FeedEditPage = () => {
                         active={error.id === selectedError?.id}
                         solved={error.useSolve}
                         onSave={handleSave}
+                        onSuppress={handleSuppress}
                         onClick={handleErrorClick}
                         onCancel={() => {
                           setSelectedError(undefined);
